@@ -262,3 +262,4 @@ kbd { font: 600 12px/1 var(--display); background: #343b2b; color: #e7e9e0; bord
 .more__skills { font-size: 16px; color: var(--muted); margin-bottom: .6em; }
 .more__skills strong { font-family: var(--display); font-weight: 600; color: var(--ink); font-size: 15px; }
 @media (max-width: 560px) { .more__item { grid-template-columns: 1fr; gap: 4px; } }
+.hero__trip { margin: 4px 0 0; }

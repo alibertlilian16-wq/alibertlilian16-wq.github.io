@@ -96,15 +96,23 @@ html.immersive, html.immersive body { height: 100%; overflow: hidden; overscroll
 .loader { position: fixed; inset: auto 0 28px; text-align: center; font: 14px var(--display); color: var(--muted); margin: 0; z-index: 20; }
 html:not(.loading) .loader { display: none; }
 
+/* Téléphone : le décor en haut, la carte de l'étape posée en bas */
+.sheet { position: fixed; z-index: 15; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom, 0px)); height: 0; }
+.sheet .card { position: absolute; left: 0; right: 0; bottom: 0; width: auto; opacity: 0; transform: translateY(28px); transition: opacity .35s, transform .45s cubic-bezier(.2, .7, .2, 1); pointer-events: none; }
+.sheet .card.is-on { opacity: 1; transform: none; pointer-events: auto; }
+
 @media (max-width: 760px) {
-  .intro { left: 22px; right: 22px; top: 76px; transform: none; max-width: none; }
-  .intro h1 { font-size: 54px; margin-bottom: 12px; }
-  .intro p { font-size: 17px; }
+  .intro { left: 12px; right: 12px; top: auto; bottom: max(12px, env(safe-area-inset-bottom, 0px)); transform: none; max-width: none; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px 22px 18px; box-shadow: 0 30px 60px -40px rgba(31, 35, 28, .55); }
+  .intro h1 { font-size: 46px; margin-bottom: 10px; }
+  .intro p { font-size: 16px; }
+  .intro__how { margin-top: 12px; }
   .bar__now { font-size: 12px; text-align: center; }
   .bar__link { display: none; }
-  .card { width: 360px; }
-  .card h2 { font-size: 30px; }
-  .card--key h2 { font-size: 40px; }
+  .card__face { padding: 20px 20px 16px; font-size: 16px; }
+  .card h2 { font-size: 27px; }
+  .card--key h2 { font-size: 36px; }
+  .card--end h2 { font-size: 34px; }
+  .card__where { margin-bottom: 10px; }
 }
 
 /* Sans 3D (mouvement réduit ou pas de WebGL) : une page simple. */

@@ -108,7 +108,11 @@ function build(cards) {
   scene.background = pal.bg.clone();
   scene.fog = new THREE.Fog(pal.bg.clone(), 14, 62);
 
-  const camera = new THREE.PerspectiveCamera(narrow ? 66 : 52, innerWidth / innerHeight, 0.1, 220);
+  const camera = new THREE.PerspectiveCamera(narrow ? 62 : 52, innerWidth / innerHeight, 0.1, 220);
+  // Sur téléphone, l'horizon remonte dans le tiers haut : les décors occupent le haut de l'écran, la carte le bas.
+  const frameView = () => { if (narrow) camera.setViewOffset(innerWidth, innerHeight * 1.5, 0, innerHeight * 0.5, innerWidth, innerHeight); else camera.clearViewOffset(); };
+  frameView();
+  const sheet = narrow ? document.body.insertBefore(el('div', 'sheet'), $('.loader')) : null;
 
   // ----- Matières : une maquette en pierre claire, accents olive -----
   const M = {
@@ -261,7 +265,7 @@ function build(cards) {
   };
 
   // ----- Trajet : des points d'arrêt qui serpentent doucement -----
-  const F = [new THREE.Vector3(0, 1.65, narrow ? 11 : 8)];
+  const F = [new THREE.Vector3(0, 1.65, narrow ? 15 : 8)];
   for (let i = 1; i <= N; i++) F.push(new THREE.Vector3(i === N || narrow ? 0 : (i % 2 ? 0.9 : -0.9), 1.65, -i * SP));
   const curve = new THREE.CatmullRomCurve3(F, false, 'catmullrom', 0.3);
 
@@ -287,8 +291,10 @@ function build(cards) {
   cards.forEach((card, k) => {
     const i = k + 1; const f = F[i]; const end = i === N;
     const side = end ? -1 : (i % 2 ? 1 : -1);
-    const cPos = narrow ? f.clone().add(new THREE.Vector3(0, 0.3, -4.4)) : f.clone().add(new THREE.Vector3(end ? 0 : side * 1.55, end ? 0.2 : 0.08, -3.6));
-    const obj = new CSS3DObject(card); obj.position.copy(cPos); obj.scale.setScalar(scaleCard); obj.lookAt(f); cssScene.add(obj);
+    const cPos = f.clone().add(new THREE.Vector3(end ? 0 : side * 1.55, end ? 0.2 : 0.08, -3.6));
+    let obj = null;
+    if (narrow) sheet.append(card);  // sur téléphone : la carte de l'étape s'affiche en bas de l'écran
+    else { obj = new CSS3DObject(card); obj.position.copy(cPos); obj.scale.setScalar(scaleCard); obj.lookAt(f); cssScene.add(obj); }
 
     let prop;
     if (end) {
@@ -298,18 +304,19 @@ function build(cards) {
       const light = box(prop, 2.8, 4.45, 0.04, M.glow, fx, 2.23, -0.12);
       const pl = new THREE.PointLight(0xffe2a8, 10, 14, 1.3); pl.position.set(fx, 2.5, 1.5); prop.add(pl);
       animated.push((t) => { light.scale.setScalar(1 + Math.sin(t * 1.3) * 0.01); pl.intensity = 10 + Math.sin(t * 1.3) * 1.5; });
-      prop.position.copy(f).add(new THREE.Vector3(0, -1.65, narrow ? -9 : -7.5));
+      prop.position.copy(f).add(new THREE.Vector3(0, -1.65, narrow ? -12 : -7.5));
+      if (narrow) prop.scale.setScalar(0.72);
     } else {
       prop = PROPS[card.dataset.prop] ? PROPS[card.dataset.prop]() : PROPS.projet();
-      prop.position.copy(f).add(narrow ? new THREE.Vector3(side * 0.4, -1.65, -8.5) : new THREE.Vector3(-side * 2.7, -1.65, -9.2));
-      prop.rotation.y = narrow ? 0 : side * 0.45;
+      prop.position.copy(f).add(narrow ? new THREE.Vector3(-side * 1.2, -1.65, -10.5) : new THREE.Vector3(-side * 2.7, -1.65, -9.2));
+      prop.rotation.y = side * (narrow ? 0.6 : 0.45);
     }
     scene.add(prop);
 
     let year = null;
     if (card.dataset.year) {
-      year = new CSS3DObject(el('div', 'year', card.dataset.year)); year.scale.setScalar(0.011);
-      year.position.copy(f).add(narrow ? new THREE.Vector3(0, 2.6, -14) : new THREE.Vector3(-side * 4.2, 1.6, -13.5));
+      year = new CSS3DObject(el('div', 'year', card.dataset.year)); year.scale.setScalar(narrow ? 0.008 : 0.011);
+      year.position.copy(f).add(narrow ? new THREE.Vector3(side * 2.2, 2.6, -19) : new THREE.Vector3(-side * 4.2, 1.6, -13.5));
       year.lookAt(f); cssScene.add(year);
     }
     if (i > 1) {
@@ -318,7 +325,8 @@ function build(cards) {
       blob(arch, 0.5, -1.7); blob(arch, 0.5, 1.7);
       scene.add(arch);
     }
-    stations.push({ card, obj, year, pos: cPos, s: OPEN + i * STEP });
+    const focus = narrow ? prop.position.clone().add(new THREE.Vector3(side * 0.35, end ? 2.2 : 1.0, 0)) : cPos;
+    stations.push({ card, obj, year, pos: cPos, focus, s: OPEN + i * STEP });
   });
 
   // ----- Un chemin de dalles qui suit le trajet -----
@@ -398,7 +406,7 @@ function build(cards) {
 
   addEventListener('resize', () => {
     if ((innerWidth < 760) !== narrow) { location.reload(); return; }
-    camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+    camera.aspect = innerWidth / innerHeight; frameView(); camera.updateProjectionMatrix();
     gl.setSize(innerWidth, innerHeight); css.setSize(innerWidth, innerHeight);
   });
 
@@ -429,21 +437,27 @@ function build(cards) {
     ahead.y -= 0.08;
     const j = Math.round(uN);
     look.copy(ahead);
-    if (j >= 1) { const w = clamp(1 - Math.abs(uN - j) * 1.6, 0, 1); look.lerp(stations[j - 1].pos, w * 0.5); }
+    if (j >= 1) { const w = clamp(1 - Math.abs(uN - j) * 1.6, 0, 1); look.lerp(stations[j - 1].focus, w * (narrow ? 0.7 : 0.5)); }
     camera.lookAt(look);
     camera.getWorldDirection(fwd);
 
     sun.position.copy(camera.position).add(tmp.set(6, 12, 8));
     sun.target.position.copy(camera.position).add(tmp.set(0, 0, -10));
 
-    stations.forEach((st) => {
-      tmp.copy(st.pos).sub(camera.position);
+    stations.forEach((st, idx) => {
+      if (narrow) {
+        st.card.classList.toggle('is-on', Math.abs(uN - (idx + 1)) < 0.32);
+      } else {
+        tmp.copy(st.pos).sub(camera.position);
+        const along0 = tmp.dot(fwd), dist0 = tmp.length();
+        const o = clamp((along0 - 0.6) / 1.4, 0, 1) * clamp(1 - (dist0 - 8) / 26, 0, 1);
+        st.card.style.opacity = o.toFixed(3);
+        st.card.style.visibility = o < 0.02 ? 'hidden' : 'visible';
+        st.card.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
+      }
+      tmp.copy(st.year ? st.year.position : st.pos).sub(camera.position);
       const along = tmp.dot(fwd), dist = tmp.length();
-      const o = clamp((along - 0.6) / 1.4, 0, 1) * clamp(1 - (dist - 8) / 26, 0, 1);
-      st.card.style.opacity = o.toFixed(3);
-      st.card.style.visibility = o < 0.02 ? 'hidden' : 'visible';
-      st.card.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
-      if (st.year) { const yo = clamp((along - 2) / 3, 0, 1) * clamp(1 - (dist - 10) / 30, 0, 1); st.year.element.style.opacity = (yo * 0.9).toFixed(3); }
+      if (st.year) { const yo = clamp((along - 4) / 4, 0, 1) * clamp(1 - (dist - 16) / 30, 0, 1); st.year.element.style.opacity = (yo * 0.9).toFixed(3); }
     });
 
     const c = uN < 0.5 ? -1 : clamp(Math.round(uN) - 1, 0, N - 1);

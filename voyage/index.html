@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Le voyage, parcours de Lilian Alibert</title>
-<meta name="description" content="Mon parcours en 3D : on avance du lycée jusqu’à juin 2027, porte après porte.">
+<meta name="description" content="Mon parcours en 3D : on passe la porte et on avance dans une maquette, du lycée jusqu’à juin 2027.">
 <link rel="canonical" href="https://alibertlilian16-wq.github.io/voyage/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
@@ -12,132 +12,205 @@
 <meta property="og:description" content="Mon parcours en 3D, du lycée jusqu’à juin 2027.">
 <meta property="og:url" content="https://alibertlilian16-wq.github.io/voyage/">
 <meta property="og:image" content="https://alibertlilian16-wq.github.io/img/apercu.png">
-<meta name="theme-color" content="#F3F4F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#ECEDE6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#161913" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="../fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="modulepreload" href="lib/three.module.min.js">
 <link rel="stylesheet" href="voyage.css">
 <script>
   try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('flat');
+  else document.documentElement.classList.add('loading');
 </script>
+<script type="importmap">{ "imports": { "three": "./lib/three.module.min.js" } }</script>
 </head>
 <body>
 <header class="bar">
   <a class="bar__mark" href="../" aria-label="Retour au portfolio">LA</a>
-  <p class="bar__hint" id="hint" aria-hidden="true">Faites défiler pour ouvrir la porte</p>
+  <p class="bar__now" id="now" aria-live="polite"></p>
   <a class="bar__link" href="../">Version classique</a>
   <button class="bar__theme" type="button" aria-label="Changer de thème" title="Changer de thème">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>
   </button>
 </header>
 
+<canvas id="scene" aria-hidden="true"></canvas>
 <div class="track" id="track" aria-hidden="true"></div>
 
-<main class="stage">
-<div class="world" id="stage">
-  <div class="floor" aria-hidden="true"></div>
+<section class="intro" id="intro" aria-labelledby="bienvenue">
+  <h1 id="bienvenue">Lilian Alibert</h1>
+  <p>Bienvenue dans mon portfolio. Passez la porte&nbsp;: on avance dans mon parcours, du lycée jusqu’à juin 2027, comme dans une maquette.</p>
+  <p class="intro__how"><span class="intro__wheel" aria-hidden="true"></span>Faites défiler pour ouvrir la porte. Cliquez sur une carte pour la retourner.</p>
+</section>
 
-  <section class="plane door" aria-labelledby="bienvenue">
-    <div class="door__text">
-      <h1 id="bienvenue">Lilian Alibert</h1>
-      <p>Bienvenue dans mon portfolio. Ici, on ne fait pas défiler une page&nbsp;: on avance dans mon parcours, du lycée jusqu’à juin 2027.</p>
-      <p class="door__how">Faites défiler avec la molette, ou glissez sur l’écran.</p>
+<main class="cards" id="cards">
+  <article class="card" data-tri="2021-09" data-rail="2021" data-year="2021" data-prop="lycee">
+    <div class="card__inner">
+      <div class="card__face card__front">
+        <p class="card__when">2021 – 2024</p>
+        <h2>Bac STMG, option mercatique</h2>
+        <p class="card__where">Lycée Louis-Rascol, Albi</p>
+        <p>Mes premiers cours de marketing et de vente. Je l’obtiens en 2024 avec la mention bien.</p>
+        <button class="card__flip" type="button">Ce que j’en retiens</button>
+      </div>
+      <div class="card__face card__back">
+        <p class="card__when">Ce que j’en retiens</p>
+        <p>La filière sciences et technologies du management et de la gestion&nbsp;: gestion, droit, économie, et en option la mercatique, le marketing appliqué.</p>
+        <ul class="card__tags"><li>Mercatique</li><li>Gestion</li><li>Communication</li></ul>
+        <button class="card__flip" type="button">Retourner la carte</button>
+      </div>
     </div>
-    <div class="door__wall door__wall--l" aria-hidden="true"></div>
-    <div class="door__wall door__wall--r" aria-hidden="true"></div>
-    <div class="door__wall door__wall--t" aria-hidden="true"></div>
-    <div class="door__wall door__wall--b" aria-hidden="true"></div>
-    <div class="door__frame" aria-hidden="true">
-      <div class="door__leaf"><span class="door__handle"></span><span class="door__plate">Entrer</span></div>
+  </article>
+
+  <article class="card" data-tri="2022-09" data-rail="2022" data-year="2022" data-prop="athle">
+    <div class="card__inner">
+      <div class="card__face card__front">
+        <p class="card__when">2022 – 2023</p>
+        <h2>Entraîneur bénévole d’athlétisme</h2>
+        <p class="card__where">Athlé Brens-Gaillac</p>
+        <p>Pendant une saison, j’entraîne le groupe jeunes du club&nbsp;: je prépare les séances et je les accompagne en compétition.</p>
+        <button class="card__flip" type="button">Ce que j’en retiens</button>
+      </div>
+      <div class="card__face card__back">
+        <p class="card__when">Ce que j’en retiens</p>
+        <p>Ma première vraie expérience d’encadrement&nbsp;: concevoir et coordonner les programmes d’un groupe, puis l’accompagner jusqu’en compétition.</p>
+        <ul class="card__tags"><li>Encadrement</li><li>Organisation</li><li>Pédagogie</li></ul>
+        <button class="card__flip" type="button">Retourner la carte</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card" data-tri="2023-10" data-rail="2023" data-year="2023" data-prop="auto">
+    <div class="card__inner">
+      <div class="card__face card__front">
+        <p class="card__when">Octobre 2023</p>
+        <h2>Une semaine en concession</h2>
+        <p class="card__where">Jean Rouyer Automobiles, Les Sables-d’Olonne</p>
+        <p>Je suis une vente de voiture de bout en bout, du premier contact avec le client jusqu’à la signature.</p>
+        <button class="card__flip" type="button">Ce que j’en retiens</button>
+      </div>
+      <div class="card__face card__back">
+        <p class="card__when">Ce que j’en retiens</p>
+        <p>Une immersion auprès des équipes commerciales et de l’accueil, pour voir comment une vente se construit, étape par étape.</p>
+        <ul class="card__tags"><li>Communication</li><li>Négociation</li></ul>
+        <button class="card__flip" type="button">Retourner la carte</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card" data-tri="2024-09" data-rail="2024" data-year="2024" data-prop="iut">
+    <div class="card__inner">
+      <div class="card__face card__front">
+        <p class="card__when">Septembre 2024</p>
+        <h2>J’entre en BUT Techniques de Commercialisation</h2>
+        <p class="card__where">IUT Montpellier-Sète</p>
+        <p>Trois ans pour apprendre à vendre, à négocier et à suivre des clients dans la durée. Les deux dernières années, en alternance.</p>
+        <button class="card__flip" type="button">Ce que j’en retiens</button>
+      </div>
+      <div class="card__face card__back">
+        <p class="card__when">Ce que j’y apprends</p>
+        <p>Parcours business développement et management de la relation client. Chaque semestre, des projets sur des cas d’entreprise réels, les SAÉ.</p>
+        <ul class="card__tags"><li>Marketing</li><li>Vente et négociation</li><li>Business développement</li><li>Relation client</li></ul>
+        <button class="card__flip" type="button">Retourner la carte</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card card--key" data-tri="2024-12" data-rail="Déc. 2024" data-year="ERA" data-prop="era">
+    <div class="card__inner">
+      <div class="card__face card__front">
+        <p class="card__when">Décembre 2024</p>
+        <h2>Le déclic</h2>
+        <p class="card__where">ERA Immobilier, Gaillac, deux semaines</p>
+        <p>Prospection, négociation, vente, montage du dossier&nbsp;: je vois ce qu’une vente représente pour les gens en face, vendeur comme acheteur. C’est là que je décide de faire ce métier.</p>
+        <button class="card__flip" type="button">Ce que j’en retiens</button>
+      </div>
+      <div class="card__face card__back">
+        <p class="card__when">Ce que j’en retiens</p>
+        <p>Les grandes étapes d’une transaction, en observation puis en pratique, et la diffusion des annonces de l’agence sur les portails et le site vitrine.</p>
+        <ul class="card__tags"><li>Prospection</li><li>Transaction immobilière</li><li>Diffusion d’annonces</li></ul>
+        <button class="card__flip" type="button">Retourner la carte</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card" data-tri="2025-09" data-rail="2025" data-year="2025" data-prop="ba">
+    <div class="card__inner">
+      <div class="card__face card__front">
+        <p class="card__when">Septembre 2025</p>
+        <h2>Alternance&nbsp;: je déploie ProxiDon</h2>
+        <p class="card__where">Banque Alimentaire de l’Hérault</p>
+        <p>Je prospecte des commerces dans tout l’Hérault pour qu’ils donnent leurs invendus à des associations proches, puis je fais en sorte que les dons durent.</p>
+        <button class="card__flip" type="button">Ce que j’en retiens</button>
+      </div>
+      <div class="card__face card__back">
+        <p class="card__when">Ce que j’en retiens</p>
+        <blockquote>«&nbsp;Dans le don alimentaire, on ne vend rien. On remercie d’abord, on propose, et on laisse toujours une porte de sortie.&nbsp;»</blockquote>
+        <p>Pour tenir le rythme des relances, j’ai conçu mon propre outil de prospection.</p>
+        <ul class="card__tags"><li>Prospection B2B</li><li>Relation client</li><li>Analyse de données</li></ul>
+        <button class="card__flip" type="button">Retourner la carte</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card" data-tri="2026-03" data-rail="2026" data-year="2026" data-prop="rayon">
+    <div class="card__inner">
+      <div class="card__face card__front">
+        <p class="card__when">2026</p>
+        <h2>La communication d’une épicerie étudiante</h2>
+        <p class="card__where">Banque Alimentaire et RAYON&nbsp;34, Montpellier</p>
+        <p>J’audite les réseaux sociaux de la Banque Alimentaire et du RAYON&nbsp;34, son épicerie sociale étudiante, puis j’écris la charte de leurs publications.</p>
+        <button class="card__flip" type="button">Ce que j’en retiens</button>
+      </div>
+      <div class="card__face card__back">
+        <p class="card__when">La charte</p>
+        <p>Trois gabarits simples, deux couleurs, un ton. Une note de synthèse présentée au bureau de l’association.</p>
+        <div class="card__swatches" aria-hidden="true"><span style="--c:#3435FF"></span><span style="--c:#FF8200"></span></div>
+        <button class="card__flip" type="button">Retourner la carte</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card" data-tri="2026-09" data-rail="Sept. 2026" data-year="LPJ" data-prop="lpj">
+    <div class="card__inner">
+      <div class="card__face card__front">
+        <p class="card__when">Septembre 2026</p>
+        <h2>Je crée La Pierre Juste</h2>
+        <p class="card__where">lapierrejuste.fr</p>
+        <p>Un site gratuit qui explique les prix de l’immobilier à Montpellier, quartier par quartier, à partir des ventes réellement signées devant notaire.</p>
+        <button class="card__flip" type="button">Comment c’est fait</button>
+      </div>
+      <div class="card__face card__back">
+        <p class="card__when">Comment c’est fait</p>
+        <p>Créé seul&nbsp;: données publiques DVF nettoyées et rattachées aux quartiers, comparateur de prix qui calcule dans le navigateur, articles pratiques. Astro, GitHub, Cloudflare Pages, aucun cookie.</p>
+        <a class="card__link" href="https://lapierrejuste.fr" rel="noopener">Visiter lapierrejuste.fr</a>
+        <button class="card__flip" type="button">Retourner la carte</button>
+      </div>
+    </div>
+  </article>
+
+  <section class="card card--end" data-tri="2027-06" data-rail="Juin 2027" data-year="2027" data-prop="fin" aria-labelledby="fin">
+    <div class="card__inner">
+      <div class="card__face card__front">
+        <p class="card__when">21 juin 2027</p>
+        <h2 id="fin">La prochaine porte</h2>
+        <p>Diplômé, je cherche mon premier poste dans l’immobilier à Montpellier, en CDI&nbsp;: en agence ou chez un promoteur.</p>
+        <div class="card__actions">
+          <a class="btn btn--main" href="../cv/CV_Lilian_Alibert_Immobilier.pdf" download>Télécharger mon CV</a>
+          <a class="btn" href="mailto:alibert.lilian16@gmail.com">M’écrire</a>
+        </div>
+        <p class="card__mail">alibert.lilian16@gmail.com</p>
+        <p class="card__small"><a href="../">Version classique</a> · <a href="#" id="restart">Revenir au début</a></p>
+      </div>
     </div>
   </section>
-
-  <article class="plane station" data-tri="2021-09" data-rail="2021">
-    <p class="station__when">2021 – 2024</p>
-    <h2>Bac STMG, option mercatique</h2>
-    <p class="station__where">Lycée Louis-Rascol, Albi</p>
-    <p>Mes premiers cours de marketing et de vente. Je l’obtiens en 2024 avec la mention bien.</p>
-    <span class="station__big" aria-hidden="true">2021</span>
-  </article>
-
-  <article class="plane station" data-tri="2022-09" data-rail="2022">
-    <p class="station__when">2022 – 2023</p>
-    <h2>Entraîneur bénévole d’athlétisme</h2>
-    <p class="station__where">Athlé Brens-Gaillac</p>
-    <p>Pendant une saison, j’entraîne le groupe jeunes du club&nbsp;: je prépare les séances et je les accompagne en compétition. Ma première expérience d’encadrement.</p>
-    <span class="station__big" aria-hidden="true">2022</span>
-  </article>
-
-  <article class="plane station" data-tri="2023-10" data-rail="2023">
-    <p class="station__when">Octobre 2023</p>
-    <h2>Une semaine en concession</h2>
-    <p class="station__where">Jean Rouyer Automobiles, Les Sables-d’Olonne</p>
-    <p>Je suis une vente de voiture de bout en bout, du premier contact avec le client jusqu’à la signature.</p>
-    <span class="station__big" aria-hidden="true">2023</span>
-  </article>
-
-  <article class="plane station" data-tri="2024-09" data-rail="2024">
-    <p class="station__when">Septembre 2024</p>
-    <h2>J’entre en BUT Techniques de Commercialisation</h2>
-    <p class="station__where">IUT Montpellier-Sète</p>
-    <p>Trois ans pour apprendre à vendre, à négocier et à suivre des clients dans la durée. Les deux dernières années, en alternance.</p>
-    <span class="station__big" aria-hidden="true">2024</span>
-  </article>
-
-  <article class="plane station station--key" data-tri="2024-12" data-rail="Déc. 2024">
-    <p class="station__when">Décembre 2024</p>
-    <h2>Le déclic</h2>
-    <p class="station__where">ERA Immobilier, Gaillac, deux semaines</p>
-    <p>Prospection, négociation, vente, montage du dossier&nbsp;: je vois ce qu’une vente représente pour les gens en face, vendeur comme acheteur. C’est là que je décide de faire ce métier.</p>
-    <span class="station__big" aria-hidden="true">ERA</span>
-  </article>
-
-  <article class="plane station" data-tri="2025-09" data-rail="2025">
-    <p class="station__when">Septembre 2025</p>
-    <h2>Alternance&nbsp;: je déploie ProxiDon</h2>
-    <p class="station__where">Banque Alimentaire de l’Hérault</p>
-    <p>Je prospecte des commerces dans tout l’Hérault pour qu’ils donnent leurs invendus à des associations proches, puis je fais en sorte que les dons durent. Pour tenir le rythme des relances, je conçois mon propre outil.</p>
-    <blockquote>«&nbsp;Dans le don alimentaire, on ne vend rien. On remercie d’abord, on propose, et on laisse toujours une porte de sortie.&nbsp;»</blockquote>
-    <span class="station__big" aria-hidden="true">2025</span>
-  </article>
-
-  <article class="plane station" data-tri="2026-03" data-rail="2026">
-    <p class="station__when">2026</p>
-    <h2>La communication d’une épicerie étudiante</h2>
-    <p class="station__where">Banque Alimentaire et RAYON&nbsp;34, Montpellier</p>
-    <p>J’audite les réseaux sociaux de la Banque Alimentaire et du RAYON&nbsp;34, son épicerie sociale étudiante, puis j’écris la charte de leurs publications&nbsp;: trois gabarits simples, deux couleurs, un ton.</p>
-    <div class="station__swatches" aria-hidden="true"><span style="--c:#3435FF"></span><span style="--c:#FF8200"></span></div>
-    <span class="station__big" aria-hidden="true">2026</span>
-  </article>
-
-  <article class="plane station" data-tri="2026-09" data-rail="Sept. 2026">
-    <p class="station__when">Septembre 2026</p>
-    <h2>Je crée La Pierre Juste</h2>
-    <p class="station__where">lapierrejuste.fr</p>
-    <p>Un site gratuit qui explique les prix de l’immobilier à Montpellier, quartier par quartier, à partir des ventes réellement signées devant notaire. Je le construis seul et je le fais évoluer toute l’année.</p>
-    <a class="station__link" href="https://lapierrejuste.fr" rel="noopener">Visiter lapierrejuste.fr</a>
-    <span class="station__big" aria-hidden="true">LPJ</span>
-  </article>
-
-  <section class="plane station station--end" data-tri="2027-06" data-rail="Juin 2027" aria-labelledby="fin">
-    <p class="station__when">21 juin 2027</p>
-    <h2 id="fin">La prochaine porte</h2>
-    <p>Diplômé, je cherche mon premier poste dans l’immobilier à Montpellier, en CDI&nbsp;: en agence ou chez un promoteur.</p>
-    <div class="station__actions">
-      <a class="btn btn--main" href="../cv/CV_Lilian_Alibert_Immobilier.pdf" download>Télécharger mon CV</a>
-      <a class="btn" href="mailto:alibert.lilian16@gmail.com">M’écrire</a>
-    </div>
-    <p class="station__mail">alibert.lilian16@gmail.com</p>
-    <p class="station__small"><a href="../">Voir la version classique</a> · <a href="#" id="restart">Revenir au début</a></p>
-    <span class="station__big" aria-hidden="true">2027</span>
-  </section>
-</div>
 </main>
 
 <nav class="rail" aria-label="Étapes du parcours"><ol id="rail"></ol></nav>
+<p class="loader" aria-hidden="true">Construction de la maquette…</p>
 
-<script src="voyage.js" defer></script>
+<script type="module" src="voyage.js"></script>
 </body>
 </html>

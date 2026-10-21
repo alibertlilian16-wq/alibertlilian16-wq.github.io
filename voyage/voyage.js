@@ -100,7 +100,7 @@ function build(cards) {
   const css = new CSS3DRenderer();
   css.setSize(innerWidth, innerHeight);
   css.domElement.classList.add('css3d');
-  document.body.insertBefore(css.domElement, $('.rail'));
+  document.body.insertBefore(css.domElement, $('.loader'));
 
   const scene = new THREE.Scene();
   const cssScene = new THREE.Scene();
@@ -340,29 +340,39 @@ function build(cards) {
   const dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: pal.olive, size: narrow ? 0.05 : 0.04, transparent: true, opacity: 0.55, depthWrite: false }));
   scene.add(dust);
 
-  // ----- Défilement, fil des étapes -----
+  // ----- Navigation : la molette, le doigt ou le clavier font avancer la caméra (la page elle-même ne défile pas) -----
   const maxS = OPEN + N * STEP;
-  $('#track').style.height = (maxS + 1) * 100 + 'vh';
-  const railList = $('#rail'); railList.innerHTML = '';
-  const railBtns = stations.map((st) => {
-    const li = el('li'); const b = el('button'); b.type = 'button';
-    b.append(el('span', '', st.card.dataset.rail || ''));
-    b.setAttribute('aria-label', 'Aller à : ' + (st.card.dataset.rail || '') + ', ' + ($('h2', st.card) || {}).textContent);
-    b.addEventListener('click', () => scrollTo({ top: st.s * innerHeight, behavior: 'smooth' }));
-    li.append(b); railList.append(li); return b;
-  });
+  let target = 0;
+  const setT = (v) => { target = clamp(v, 0, maxS); };
+  root.classList.add('immersive');
+  addEventListener('wheel', (e) => {
+    if (e.ctrlKey) return;
+    e.preventDefault();
+    let d = e.deltaY; if (e.deltaMode === 1) d *= 40; else if (e.deltaMode === 2) d *= innerHeight;
+    setT(target + clamp(d, -240, 240) / innerHeight * 0.9);
+  }, { passive: false });
+  let ty = null;
+  addEventListener('touchstart', (e) => { ty = e.touches[0].clientY; }, { passive: true });
+  addEventListener('touchmove', (e) => {
+    if (ty === null) return;
+    e.preventDefault();
+    const y = e.touches[0].clientY; setT(target + (ty - y) / innerHeight * 1.6); ty = y;
+  }, { passive: false });
+  addEventListener('touchend', () => { ty = null; });
   const now = $('#now'); const intro = $('#intro');
 
   addEventListener('keydown', (e) => {
     if (e.target.closest && e.target.closest('a,button,input,textarea')) return;
-    if (!['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' '].includes(e.key)) return;
+    if (!['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' ', 'Home', 'End'].includes(e.key)) return;
     e.preventDefault();
-    const s = scrollY / innerHeight; const marks = [0, ...stations.map((x) => x.s)];
+    if (e.key === 'Home') { setT(0); return; }
+    if (e.key === 'End') { setT(maxS); return; }
+    const marks = [0, ...stations.map((x) => x.s)];
     const down = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey);
-    const target = down ? marks.find((m) => m > s + 0.05) : [...marks].reverse().find((m) => m < s - 0.05);
-    if (target !== undefined) scrollTo({ top: target * innerHeight, behavior: 'smooth' });
+    const next = down ? marks.find((m) => m > target + 0.05) : [...marks].reverse().find((m) => m < target - 0.05);
+    if (next !== undefined) setT(next);
   });
-  $('#restart').addEventListener('click', (e) => { e.preventDefault(); scrollTo({ top: 0, behavior: 'smooth' }); });
+  $('#restart').addEventListener('click', (e) => { e.preventDefault(); setT(0); });
 
   // Parallaxe à la souris
   const ptr = { x: 0, y: 0, sx: 0, sy: 0 };
@@ -401,7 +411,7 @@ function build(cards) {
     const dt = Math.min(0.05, Math.max(0, (nowT - last) / 1000)); last = nowT;
     const t = clock.getElapsedTime();
     const k = 1 - Math.exp(-dt * 5.5);
-    const s = scrollY / innerHeight;
+    const s = target;
     open += (clamp(s / OPEN, 0, 1) - open) * k;
     u += (clamp((s - OPEN) / (N * STEP), 0, 1) - u) * k;
 
@@ -439,7 +449,6 @@ function build(cards) {
     const c = uN < 0.5 ? -1 : clamp(Math.round(uN) - 1, 0, N - 1);
     if (c !== current) {
       current = c;
-      railBtns.forEach((b, i2) => { if (i2 === c) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); b.classList.toggle('is-done', i2 < c); });
       now.textContent = c < 0 ? 'Faites défiler pour ouvrir la porte' : (stations[c].card.dataset.rail + ' · ' + ($('h2', stations[c].card) || {}).textContent);
     }
 

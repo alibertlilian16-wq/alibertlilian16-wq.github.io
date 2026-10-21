@@ -1,0 +1,4 @@
+{
+  "_mode_emploi": "Ajouter un objet dans la liste projets. Champs : titre, contexte, date (texte affiché), tri (AAAA-MM, pour l'ordre), resume, puces (liste), competences (liste), lien (facultatif : texte et url). Le site se met à jour tout seul.",
+  "projets": []
+}

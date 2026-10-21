@@ -18,11 +18,15 @@
 <link rel="preload" href="../fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="modulepreload" href="lib/three.module.min.js">
-<link rel="stylesheet" href="voyage.css">
+<link rel="stylesheet" href="voyage.css?v=3">
 <script>
   try { var t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('flat');
-  else document.documentElement.classList.add('loading');
+  else {
+    document.documentElement.classList.add('loading');
+    // Filet de sécurité : si la 3D ne démarre pas, on affiche la version simple.
+    setTimeout(function () { var h = document.documentElement; if (h.classList.contains('loading')) { h.classList.remove('loading'); h.classList.add('flat'); } }, 12000);
+  }
 </script>
 <script type="importmap">{ "imports": { "three": "./lib/three.module.min.js" } }</script>
 </head>
@@ -211,6 +215,6 @@
 <nav class="rail" aria-label="Étapes du parcours"><ol id="rail"></ol></nav>
 <p class="loader" aria-hidden="true">Construction de la maquette…</p>
 
-<script type="module" src="voyage.js"></script>
+<script type="module" src="voyage.js?v=3"></script>
 </body>
 </html>
